@@ -1,4 +1,0 @@
-1,Visual Based Programming,4,30,inst1
-012,sefszfv,1,1,inst1
-fsvfsdvrf,vzsdfrvsd,12,12,inst1
-11,Kir,90,90,inst2

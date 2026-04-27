@@ -15,6 +15,7 @@ public class AdminPanel extends JPanel {
 
     private UniversityAutomationApp app;
     private JTable userTable;
+    private DefaultTableModel courseModel;
     private DefaultTableModel tableModel;
     private JComboBox<String> instructorBox;
 
@@ -193,8 +194,13 @@ public class AdminPanel extends JPanel {
                 DataStore.getInstance().saveAll();
 
                 refreshUserTable();
+
                 if (instructorBox != null) {
                     refreshInstructorBox(instructorBox);
+                }
+
+                if (courseModel != null) {
+                    refreshCourseTable(courseModel);
                 }
             }
         });
@@ -231,7 +237,7 @@ public class AdminPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
 
-        DefaultTableModel courseModel = new DefaultTableModel(
+        courseModel = new DefaultTableModel(
                 new String[]{"Code", "Name", "Credit", "Quota"},0) {
             @Override
             public boolean isCellEditable(int row, int column) {

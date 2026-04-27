@@ -1,9 +1,2 @@
-student2,1234,STUDENT,Subject1,N/A
-inst1,1234,INSTRUCTOR,Nazife Çevik,I1
-tugberk,1234,INSTRUCTOR,tugberk,N/A
-jgyjg,1234,INSTRUCTOR,jgyj,N/A
-dawdf/n,1234,ADMIN,f\sefsefaf,N/A
-\n,\n,ADMIN,\n,N/A
 student1,1234,STUDENT,John Doe,S1
 admin,1234,ADMIN,System Admin,A1
-inst2,1234,INSTRUCTOR,inst2,N/A
