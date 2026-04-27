@@ -58,6 +58,7 @@ public class StudentPanel extends JPanel {
         };
 
         JTable table = new JTable(availableModel);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
         JButton enrollBtn = new JButton("Enroll Selected");
@@ -80,9 +81,12 @@ public class StudentPanel extends JPanel {
                 JOptionPane.showMessageDialog(this,
                         "Enrollment failed:\n- Already enrolled\n- Course full\n- Invalid course");
             } else {
-                JOptionPane.showMessageDialog(this, "Enrolled successfully");
                 DataStore.getInstance().saveAll();
-                refreshEnrolled();
+
+                refreshAll();
+                refreshTranscript();
+
+                JOptionPane.showMessageDialog(this, "Enrolled successfully");
             }
         });
 
@@ -93,7 +97,7 @@ public class StudentPanel extends JPanel {
     }
 
     private void refreshAvailable() {
-        if (availableModel == null) return;
+        if (availableModel == null || app.getCurrentUser() == null) return;
         availableModel.setRowCount(0);
 
         DataStore ds = DataStore.getInstance();
@@ -125,6 +129,7 @@ public class StudentPanel extends JPanel {
         };
 
         JTable table = new JTable(enrolledModel);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
         JButton dropBtn = new JButton("Drop Selected");
@@ -142,12 +147,13 @@ public class StudentPanel extends JPanel {
 
             System.out.println("Dropping: " + courseCode);
 
-            JOptionPane.showMessageDialog(this, "Course dropped");
+            JOptionPane.showMessageDialog(this, "Course dropped successfully");
 
             DataStore.getInstance().removeEnrollment(username, courseCode);
             DataStore.getInstance().saveAll();
 
-            refreshEnrolled();
+            refreshAll();
+            refreshTranscript();
             refreshAvailable();
         });
 
@@ -158,7 +164,7 @@ public class StudentPanel extends JPanel {
     }
 
     private void refreshEnrolled() {
-        if (enrolledModel == null) return;
+        if (enrolledModel == null || app.getCurrentUser() == null) return;
         enrolledModel.setRowCount(0);
 
         DataStore ds = DataStore.getInstance();
@@ -205,8 +211,7 @@ public class StudentPanel extends JPanel {
     }
 
     public void refreshTranscript() {
-        if (app.getCurrentUser() == null) return;
-        if (transcriptModel == null || gpaLabel == null) return;
+        if (transcriptModel == null || gpaLabel == null || app.getCurrentUser() == null) return;
 
         transcriptModel.setRowCount(0);
 
