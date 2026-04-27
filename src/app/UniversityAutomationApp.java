@@ -9,6 +9,7 @@ import java.awt.*;
 public class UniversityAutomationApp extends JFrame {
 
     private model.User currentUser;
+    private gui.StudentPanel studentPanel;
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -23,10 +24,11 @@ public class UniversityAutomationApp extends JFrame {
         mainPanel = new JPanel(cardLayout);
 
         // Add panels
+        studentPanel = new gui.StudentPanel(this);
         mainPanel.add(new LoginPanel(this), "LOGIN");
         mainPanel.add(new gui.AdminPanel(this), "ADMIN");
         mainPanel.add(new gui.InstructorPanel(this), "INSTRUCTOR");
-        mainPanel.add(new gui.StudentPanel(this), "STUDENT");
+        mainPanel.add(studentPanel, "STUDENT");
 
         add(mainPanel);
 
@@ -43,6 +45,10 @@ public class UniversityAutomationApp extends JFrame {
 
     public model.User getCurrentUser() {
         return currentUser;
+    }
+
+    public gui.StudentPanel getStudentPanel() {
+        return studentPanel;
     }
 
     public static void main(String[] args) {

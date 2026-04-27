@@ -74,8 +74,14 @@ public class LoginPanel extends JPanel {
 
         switch (user.getRole()) {
             case ADMIN -> app.showPanel("ADMIN");
+
             case INSTRUCTOR -> app.showPanel("INSTRUCTOR");
-            case STUDENT -> app.showPanel("STUDENT");
+
+            case STUDENT -> {
+                app.showPanel("STUDENT");
+                app.getStudentPanel().refreshAll();
+                app.getStudentPanel().refreshTranscript();
+            }
         }
     }
 }
