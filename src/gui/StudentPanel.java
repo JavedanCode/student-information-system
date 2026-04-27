@@ -43,7 +43,12 @@ public class StudentPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         availableModel = new DefaultTableModel(
-                new String[]{"Code", "Name", "Quota"}, 0);
+                new String[]{"Code", "Name", "Quota"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         JTable table = new JTable(availableModel);
 
@@ -52,7 +57,11 @@ public class StudentPanel extends JPanel {
 
         enrollBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row == -1) return;
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a course to drop");
+                return;
+            }
 
             String courseCode = (String) availableModel.getValueAt(row, 0);
             String username = app.getCurrentUser().getUsername();
@@ -99,7 +108,12 @@ public class StudentPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         enrolledModel = new DefaultTableModel(
-                new String[]{"Code", "Name"}, 0);
+                new String[]{"Code", "Name"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         JTable table = new JTable(enrolledModel);
 
@@ -108,14 +122,21 @@ public class StudentPanel extends JPanel {
 
         dropBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row == -1) return;
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a course to drop");
+                return;
+            }
 
             String courseCode = (String) enrolledModel.getValueAt(row, 0);
             String username = app.getCurrentUser().getUsername();
 
+            System.out.println("Dropping: " + courseCode);
+
             DataStore.getInstance().removeEnrollment(username, courseCode);
             DataStore.getInstance().saveAll();
 
+            refreshEnrolled();
             refreshAvailable();
         });
 
@@ -153,7 +174,12 @@ public class StudentPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         transcriptModel = new DefaultTableModel(
-                new String[]{"Course", "Average", "Grade"}, 0);
+                new String[]{"Course", "Average", "Grade"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         JTable table = new JTable(transcriptModel);
 
