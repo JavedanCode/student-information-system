@@ -3,6 +3,7 @@ package gui;
 import app.UniversityAutomationApp;
 import data.DataStore;
 import model.*;
+import util.ValidationUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,8 +23,13 @@ public class InstructorPanel extends JPanel {
     private JTextField midtermField;
     private JTextField finalField;
 
+
+
     public InstructorPanel(UniversityAutomationApp app) {
         this.app = app;
+
+        ValidationUtil.onlyFloat(midtermField);
+        ValidationUtil.onlyFloat(finalField);
 
         setLayout(new BorderLayout());
 
@@ -38,6 +44,27 @@ public class InstructorPanel extends JPanel {
 
         add(splitPane, BorderLayout.CENTER);
         add(logout, BorderLayout.SOUTH);
+    }
+
+    private void fillExistingGrade() {
+
+        int studentRow = studentTable.getSelectedRow();
+        int courseRow = courseTable.getSelectedRow();
+
+        if (studentRow == -1 || courseRow == -1) return;
+
+        String studentUsername = (String) studentModel.getValueAt(studentRow, 0);
+        String courseCode = (String) courseModel.getValueAt(courseRow, 0);
+
+        GradeRecord g = DataStore.getInstance().findGrade(studentUsername, courseCode);
+
+        if (g != null) {
+            midtermField.setText(String.valueOf(g.getMidterm()));
+            finalField.setText(String.valueOf(g.getFinalExam()));
+        } else {
+            midtermField.setText("");
+            finalField.setText("");
+        }
     }
 
     // -----------------------------
@@ -55,13 +82,19 @@ public class InstructorPanel extends JPanel {
             }
         };
 
+
         courseTable = new JTable(courseModel);
 
         courseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         courseTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
+                fillExistingGrade();
                 refreshStudents();
+
+                midtermField.setText("");
+                finalField.setText("");
+
             }
         });
 
@@ -87,6 +120,11 @@ public class InstructorPanel extends JPanel {
 
         studentTable = new JTable(studentModel);
         studentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        studentTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                fillExistingGrade();
+            }
+        });
 
         panel.add(new JScrollPane(studentTable), BorderLayout.CENTER);
 
@@ -119,7 +157,7 @@ public class InstructorPanel extends JPanel {
     // REFRESH COURSES
     // -----------------------------
     public void refreshCourses() {
-        if (app.getCurrentUser() == null) return;
+        if (courseModel == null || app.getCurrentUser() == null) return;
 
         courseModel.setRowCount(0);
 
@@ -140,6 +178,8 @@ public class InstructorPanel extends JPanel {
     // REFRESH STUDENTS
     // -----------------------------
     private void refreshStudents() {
+
+        if (courseTable == null || studentModel == null) return;
 
         studentModel.setRowCount(0);
 
@@ -176,6 +216,10 @@ public class InstructorPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Select student and course");
             return;
         }
+        if (midtermField.getText().isEmpty() || finalField.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Enter both midterm and final grades");
+            return;
+        }
 
         try {
             String studentUsername = (String) studentModel.getValueAt(studentRow, 0);
@@ -184,20 +228,25 @@ public class InstructorPanel extends JPanel {
             double midterm = Double.parseDouble(midtermField.getText());
             double finalExam = Double.parseDouble(finalField.getText());
 
-            DataStore.getInstance()
-                    .upsertGrade(studentUsername, courseCode, midterm, finalExam);
+            try {
+                DataStore.getInstance()
+                        .upsertGrade(studentUsername, courseCode, midterm, finalExam);
 
-            DataStore.getInstance().saveAll();
+                DataStore.getInstance().saveAll();
 
-            JOptionPane.showMessageDialog(this, "Grade saved");
+                JOptionPane.showMessageDialog(this, "Grade saved");
 
-            midtermField.setText("");
-            finalField.setText("");
+                midtermField.setText("");
+                finalField.setText("");
 
-            System.out.println("Selected course: " + courseCode);
+                System.out.println("Selected course: " + courseCode);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage());
+            }
+
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Enter valid numbers");
+            JOptionPane.showMessageDialog(this, "Grades must be valid numbers (e.g. 75 or 82.5)");
         }
     }
 }
