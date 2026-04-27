@@ -1,11 +1,19 @@
 package data;
 
+import util.FileUtil;
+
 import model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataStore {
+
+    private final String USERS_FILE = "data/users.txt";
+    private final String STUDENTS_FILE = "data/students.txt";
+    private final String COURSES_FILE = "data/courses.txt";
+    private final String ENROLLMENTS_FILE = "data/enrollments.txt";
+    private final String GRADES_FILE = "data/grades.txt";
 
     private static DataStore instance;
 
@@ -200,4 +208,90 @@ public class DataStore {
     public List<User> getAllUsers() { return users; }
     public List<StudentProfile> getAllStudents() { return students; }
     public List<Course> getAllCourses() { return courses; }
+
+    public void loadAll() {
+        loadUsers();
+        loadStudents();
+        loadCourses();
+        loadEnrollments();
+        loadGrades();
+    }
+
+    private void loadUsers() {
+        users.clear();
+        for (String line : FileUtil.readFile(USERS_FILE)) {
+            users.add(User.fromFileString(line));
+        }
+    }
+
+    private void loadStudents() {
+        students.clear();
+        for (String line : FileUtil.readFile(STUDENTS_FILE)) {
+            students.add(StudentProfile.fromFileString(line));
+        }
+    }
+
+    private void loadCourses() {
+        courses.clear();
+        for (String line : FileUtil.readFile(COURSES_FILE)) {
+            courses.add(Course.fromFileString(line));
+        }
+    }
+
+    private void loadEnrollments() {
+        enrollments.clear();
+        for (String line : FileUtil.readFile(ENROLLMENTS_FILE)) {
+            enrollments.add(Enrollment.fromFileString(line));
+        }
+    }
+
+    private void loadGrades() {
+        grades.clear();
+        for (String line : FileUtil.readFile(GRADES_FILE)) {
+            grades.add(GradeRecord.fromFileString(line));
+        }
+    }
+
+    public void saveAll() {
+        saveUsers();
+        saveStudents();
+        saveCourses();
+        saveEnrollments();
+        saveGrades();
+    }
+
+    private void saveUsers() {
+        List<String> lines = users.stream()
+                .map(User::toFileString)
+                .toList();
+        FileUtil.writeFile(USERS_FILE, lines);
+    }
+
+    private void saveStudents() {
+        List<String> lines = students.stream()
+                .map(StudentProfile::toFileString)
+                .toList();
+        FileUtil.writeFile(STUDENTS_FILE, lines);
+    }
+
+    private void saveCourses() {
+        List<String> lines = courses.stream()
+                .map(Course::toFileString)
+                .toList();
+        FileUtil.writeFile(COURSES_FILE, lines);
+    }
+
+    private void saveEnrollments() {
+        List<String> lines = enrollments.stream()
+                .map(Enrollment::toFileString)
+                .toList();
+        FileUtil.writeFile(ENROLLMENTS_FILE, lines);
+    }
+
+    private void saveGrades() {
+        List<String> lines = grades.stream()
+                .map(GradeRecord::toFileString)
+                .toList();
+        FileUtil.writeFile(GRADES_FILE, lines);
+    }
 }
