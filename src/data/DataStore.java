@@ -79,7 +79,7 @@ public class DataStore {
 
     public List<Course> getCoursesByInstructor(String instructorUsername) {
         return courses.stream()
-                .filter(c -> c.getInstructorUsername().equals(instructorUsername))
+                .filter(c -> instructorUsername.equals(c.getInstructorUsername()))
                 .collect(Collectors.toList());
     }
 
@@ -150,13 +150,14 @@ public class DataStore {
     }
 
     public void upsertGrade(String studentUsername, String courseCode, double midterm, double finalExam) {
+        if (midterm < 0 || midterm > 100 || finalExam < 0 || finalExam > 100) {
+            throw new IllegalArgumentException("Grades must be between 0 and 100");
+        }
+
         GradeRecord existing = findGrade(studentUsername, courseCode);
 
         if (existing != null) {
             grades.remove(existing);
-        }
-        if (midterm < 0 || midterm > 100 || finalExam < 0 || finalExam > 100) {
-            throw new IllegalArgumentException("Grades must be between 0 and 100");
         }
 
         grades.add(new GradeRecord(studentUsername, courseCode, midterm, finalExam));
@@ -340,11 +341,11 @@ public class DataStore {
 
         // remove courses taught by instructor
         List<String> coursesToRemove = courses.stream()
-                .filter(c -> c.getInstructorUsername().equals(username))
+                .filter(c -> username.equals(c.getInstructorUsername()))
                 .map(Course::getCourseCode)
                 .toList();
 
-        courses.removeIf(c -> c.getInstructorUsername().equals(username));
+        courses.removeIf(c -> username.equals(c.getInstructorUsername()));
 
         // remove enrollments tied to deleted courses
         enrollments.removeIf(e -> coursesToRemove.contains(e.getCourseCode()));
@@ -356,6 +357,7 @@ public class DataStore {
     public void deleteCourse(String courseCode) {
 
         courses.removeIf(c -> c.getCourseCode().equals(courseCode));
+        System.out.println("Deleted course: " + courseCode);
 
         enrollments.removeIf(e -> e.getCourseCode().equals(courseCode));
 
@@ -363,10 +365,10 @@ public class DataStore {
     }
 
     public boolean isValidName(String name) {
-        return name.matches("[a-zA-Z ]+");
+        return name != null && name.matches("[a-zA-Z ]+");
     }
 
     public boolean isValidUsername(String username) {
-        return username.matches("[a-zA-Z0-9]+");
+        return username != null && username.matches("[a-zA-Z0-9]+");
     }
 }
