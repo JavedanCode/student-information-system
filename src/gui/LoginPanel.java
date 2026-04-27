@@ -57,6 +57,7 @@ public class LoginPanel extends JPanel {
 
         // Action
         loginButton.addActionListener(this::handleLogin);
+        passwordField.addActionListener(e -> handleLogin(null));
     }
 
     private void handleLogin(ActionEvent e) {
@@ -71,6 +72,9 @@ public class LoginPanel extends JPanel {
         }
 
         app.setCurrentUser(user);
+
+        usernameField.setText("");
+        passwordField.setText("");
 
         switch (user.getRole()) {
             case ADMIN -> app.showPanel("ADMIN");

@@ -194,6 +194,8 @@ public class InstructorPanel extends JPanel {
             midtermField.setText("");
             finalField.setText("");
 
+            System.out.println("Selected course: " + courseCode);
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Enter valid numbers");
         }

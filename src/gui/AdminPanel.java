@@ -128,6 +128,11 @@ public class AdminPanel extends JPanel {
                 return;
             }
 
+            if (username.contains(",") || password.contains(",")) {
+                JOptionPane.showMessageDialog(this, "Comma not allowed (file format restriction)");
+                return;
+            }
+
             DataStore ds = DataStore.getInstance();
 
             if (ds.findUser(username) != null) {
@@ -220,8 +225,20 @@ public class AdminPanel extends JPanel {
                 int quota = Integer.parseInt(quotaField.getText().trim());
                 String instructor = (String) instructorBox.getSelectedItem();
 
+
+
                 if (code.isEmpty() || name.isEmpty() || instructor.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "All fields required");
+                    return;
+                }
+
+                if (credit <= 0 || quota <= 0) {
+                    JOptionPane.showMessageDialog(this, "Credit and quota must be positive");
+                    return;
+                }
+
+                if (DataStore.getInstance().findUser(instructor) == null) {
+                    JOptionPane.showMessageDialog(this, "Instructor does not exist");
                     return;
                 }
 

@@ -103,7 +103,10 @@ public class DataStore {
         Course course = findCourse(courseCode);
         if (course == null) return false;
 
-        if (isStudentEnrolled(studentUsername, courseCode)) return false;
+        if (isStudentEnrolled(studentUsername, courseCode)) {
+            System.out.println("Already enrolled!");
+            return false;
+        }
 
         if (countEnrollmentForCourse(courseCode) >= course.getQuota()) return false;
 
@@ -151,6 +154,9 @@ public class DataStore {
 
         if (existing != null) {
             grades.remove(existing);
+        }
+        if (midterm < 0 || midterm > 100 || finalExam < 0 || finalExam > 100) {
+            throw new IllegalArgumentException("Grades must be between 0 and 100");
         }
 
         grades.add(new GradeRecord(studentUsername, courseCode, midterm, finalExam));
@@ -223,35 +229,55 @@ public class DataStore {
     private void loadUsers() {
         users.clear();
         for (String line : FileUtil.readFile(USERS_FILE)) {
-            users.add(User.fromFileString(line));
+            try {
+                users.add(User.fromFileString(line));
+            } catch (Exception e) {
+                System.out.println("Skipping invalid line: " + line);
+            }
         }
     }
 
     private void loadStudents() {
         students.clear();
         for (String line : FileUtil.readFile(STUDENTS_FILE)) {
-            students.add(StudentProfile.fromFileString(line));
+            try {
+                students.add(StudentProfile.fromFileString(line));
+            } catch (Exception e) {
+                System.out.println("Skipping invalid line: " + line);
+            }
         }
     }
 
     private void loadCourses() {
         courses.clear();
         for (String line : FileUtil.readFile(COURSES_FILE)) {
-            courses.add(Course.fromFileString(line));
+            try {
+                courses.add(Course.fromFileString(line));
+            } catch (Exception e) {
+                System.out.println("Skipping invalid line: " + line);
+            }
         }
     }
 
     private void loadEnrollments() {
         enrollments.clear();
         for (String line : FileUtil.readFile(ENROLLMENTS_FILE)) {
-            enrollments.add(Enrollment.fromFileString(line));
+            try {
+                enrollments.add(Enrollment.fromFileString(line));
+            } catch (Exception e) {
+                System.out.println("Skipping invalid line: " + line);
+            }
         }
     }
 
     private void loadGrades() {
         grades.clear();
         for (String line : FileUtil.readFile(GRADES_FILE)) {
-            grades.add(GradeRecord.fromFileString(line));
+            try {
+                grades.add(GradeRecord.fromFileString(line));
+            } catch (Exception e) {
+                System.out.println("Skipping invalid line: " + line);
+            }
         }
     }
 
@@ -296,5 +322,51 @@ public class DataStore {
                 .map(GradeRecord::toFileString)
                 .toList();
         FileUtil.writeFile(GRADES_FILE, lines);
+    }
+
+    public void deleteUser(String username) {
+
+        // remove user
+        users.removeIf(u -> u.getUsername().equals(username));
+
+        // remove student profile
+        students.removeIf(s -> s.getUsername().equals(username));
+
+        // remove enrollments
+        enrollments.removeIf(e -> e.getStudentUsername().equals(username));
+
+        // remove grades
+        grades.removeIf(g -> g.getStudentUsername().equals(username));
+
+        // remove courses taught by instructor
+        List<String> coursesToRemove = courses.stream()
+                .filter(c -> c.getInstructorUsername().equals(username))
+                .map(Course::getCourseCode)
+                .toList();
+
+        courses.removeIf(c -> c.getInstructorUsername().equals(username));
+
+        // remove enrollments tied to deleted courses
+        enrollments.removeIf(e -> coursesToRemove.contains(e.getCourseCode()));
+
+        // remove grades tied to deleted courses
+        grades.removeIf(g -> coursesToRemove.contains(g.getCourseCode()));
+    }
+
+    public void deleteCourse(String courseCode) {
+
+        courses.removeIf(c -> c.getCourseCode().equals(courseCode));
+
+        enrollments.removeIf(e -> e.getCourseCode().equals(courseCode));
+
+        grades.removeIf(g -> g.getCourseCode().equals(courseCode));
+    }
+
+    public boolean isValidName(String name) {
+        return name.matches("[a-zA-Z ]+");
+    }
+
+    public boolean isValidUsername(String username) {
+        return username.matches("[a-zA-Z0-9]+");
     }
 }

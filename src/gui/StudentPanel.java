@@ -78,8 +78,9 @@ public class StudentPanel extends JPanel {
 
             if (!success) {
                 JOptionPane.showMessageDialog(this,
-                        "Cannot enroll (maybe full or already enrolled)");
+                        "Enrollment failed:\n- Already enrolled\n- Course full\n- Invalid course");
             } else {
+                JOptionPane.showMessageDialog(this, "Enrolled successfully");
                 DataStore.getInstance().saveAll();
                 refreshEnrolled();
             }
@@ -140,6 +141,8 @@ public class StudentPanel extends JPanel {
             String username = app.getCurrentUser().getUsername();
 
             System.out.println("Dropping: " + courseCode);
+
+            JOptionPane.showMessageDialog(this, "Course dropped");
 
             DataStore.getInstance().removeEnrollment(username, courseCode);
             DataStore.getInstance().saveAll();
