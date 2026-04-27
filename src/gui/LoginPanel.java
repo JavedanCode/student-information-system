@@ -70,9 +70,12 @@ public class LoginPanel extends JPanel {
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Welcome " + user.getFullName());
+        app.setCurrentUser(user);
 
-        // TEMP: just show success
-        // next step → role-based panels
+        switch (user.getRole()) {
+            case ADMIN -> app.showPanel("ADMIN");
+            case INSTRUCTOR -> app.showPanel("INSTRUCTOR");
+            case STUDENT -> app.showPanel("STUDENT");
+        }
     }
 }
