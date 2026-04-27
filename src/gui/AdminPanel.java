@@ -1,23 +1,220 @@
 package gui;
 
 import app.UniversityAutomationApp;
+import data.DataStore;
+import model.Role;
+import model.User;
+import model.Course;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class AdminPanel extends JPanel {
 
+    private UniversityAutomationApp app;
+    private JTable userTable;
+    private DefaultTableModel tableModel;
+
     public AdminPanel(UniversityAutomationApp app) {
+        this.app = app;
+
         setLayout(new BorderLayout());
 
-        JLabel title = new JLabel("Admin Dashboard", JLabel.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 20));
+        JTabbedPane tabs = new JTabbedPane();
+
+        tabs.addTab("Users", createUserPanel());
+        tabs.addTab("Courses", createCoursePanel());
 
         JButton logoutButton = new JButton("Logout");
-
         logoutButton.addActionListener(e -> app.showPanel("LOGIN"));
 
-        add(title, BorderLayout.CENTER);
+        add(tabs, BorderLayout.CENTER);
         add(logoutButton, BorderLayout.SOUTH);
+    }
+
+    // -----------------------------
+    // USER PANEL
+    // -----------------------------
+    private JPanel createUserPanel() {
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // TABLE
+        tableModel = new DefaultTableModel(new String[]{"Username", "Role", "Full Name"}, 0);
+        userTable = new JTable(tableModel);
+
+        refreshUserTable();
+
+        panel.add(new JScrollPane(userTable), BorderLayout.CENTER);
+
+        // FORM
+        JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
+
+        JTextField usernameField = new JTextField();
+        JTextField passwordField = new JTextField();
+        JTextField fullNameField = new JTextField();
+        JComboBox<Role> roleBox = new JComboBox<>(Role.values());
+
+        JButton addButton = new JButton("Add User");
+
+        form.add(new JLabel("Username:"));
+        form.add(usernameField);
+
+        form.add(new JLabel("Password:"));
+        form.add(passwordField);
+
+        form.add(new JLabel("Full Name:"));
+        form.add(fullNameField);
+
+        form.add(new JLabel("Role:"));
+        form.add(roleBox);
+
+        form.add(new JLabel(""));
+        form.add(addButton);
+
+        panel.add(form, BorderLayout.SOUTH);
+
+        // ACTION
+        addButton.addActionListener(e -> {
+
+            String username = usernameField.getText().trim();
+            String password = passwordField.getText().trim();
+            String fullName = fullNameField.getText().trim();
+            Role role = (Role) roleBox.getSelectedItem();
+
+            if (username.isEmpty() || password.isEmpty() || fullName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "All fields required");
+                return;
+            }
+
+            DataStore ds = DataStore.getInstance();
+
+            if (ds.findUser(username) != null) {
+                JOptionPane.showMessageDialog(this, "User already exists");
+                return;
+            }
+
+            ds.addUser(new User(username, password, role, fullName, "N/A"));
+            ds.saveAll();
+
+            refreshUserTable();
+
+            usernameField.setText("");
+            passwordField.setText("");
+            fullNameField.setText("");
+        });
+
+        return panel;
+    }
+
+    private void refreshUserTable() {
+        tableModel.setRowCount(0);
+
+        for (User u : DataStore.getInstance().getAllUsers()) {
+            tableModel.addRow(new Object[]{
+                    u.getUsername(),
+                    u.getRole(),
+                    u.getFullName()
+            });
+        }
+    }
+
+    // -----------------------------
+    // COURSE PANEL
+    // -----------------------------
+    private JPanel createCoursePanel() {
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        DefaultTableModel courseModel = new DefaultTableModel(
+                new String[]{"Code", "Name", "Credit", "Quota"}, 0);
+
+        JTable courseTable = new JTable(courseModel);
+
+        refreshCourseTable(courseModel);
+
+        panel.add(new JScrollPane(courseTable), BorderLayout.CENTER);
+
+        JPanel form = new JPanel(new GridLayout(6, 2, 10, 10));
+
+        JTextField codeField = new JTextField();
+        JTextField nameField = new JTextField();
+        JTextField creditField = new JTextField();
+        JTextField quotaField = new JTextField();
+        JTextField instructorField = new JTextField();
+
+        JButton addButton = new JButton("Add Course");
+
+        form.add(new JLabel("Code:"));
+        form.add(codeField);
+
+        form.add(new JLabel("Name:"));
+        form.add(nameField);
+
+        form.add(new JLabel("Credit:"));
+        form.add(creditField);
+
+        form.add(new JLabel("Quota:"));
+        form.add(quotaField);
+
+        form.add(new JLabel("Instructor Username:"));
+        form.add(instructorField);
+
+        form.add(new JLabel(""));
+        form.add(addButton);
+
+        panel.add(form, BorderLayout.SOUTH);
+
+        addButton.addActionListener(e -> {
+            try {
+                String code = codeField.getText().trim();
+                String name = nameField.getText().trim();
+                int credit = Integer.parseInt(creditField.getText().trim());
+                int quota = Integer.parseInt(quotaField.getText().trim());
+                String instructor = instructorField.getText().trim();
+
+                if (code.isEmpty() || name.isEmpty() || instructor.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "All fields required");
+                    return;
+                }
+
+                DataStore ds = DataStore.getInstance();
+
+                if (ds.findCourse(code) != null) {
+                    JOptionPane.showMessageDialog(this, "Course already exists");
+                    return;
+                }
+
+                ds.addCourse(new Course(code, name, credit, quota, instructor));
+                ds.saveAll();
+
+                refreshCourseTable(courseModel);
+
+                codeField.setText("");
+                nameField.setText("");
+                creditField.setText("");
+                quotaField.setText("");
+                instructorField.setText("");
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Credit and Quota must be numbers");
+            }
+        });
+
+        return panel;
+    }
+
+    private void refreshCourseTable(DefaultTableModel model) {
+        model.setRowCount(0);
+
+        for (Course c : DataStore.getInstance().getAllCourses()) {
+            model.addRow(new Object[]{
+                    c.getCourseCode(),
+                    c.getCourseName(),
+                    c.getCredit(),
+                    c.getQuota()
+            });
+        }
     }
 }
