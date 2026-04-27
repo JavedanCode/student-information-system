@@ -37,6 +37,11 @@ public class UniversityAutomationApp extends JFrame {
 
     public void showPanel(String name) {
         cardLayout.show(mainPanel, name);
+
+        if (name.equals("STUDENT") && studentPanel != null) {
+            studentPanel.refreshAll();
+            studentPanel.refreshTranscript();
+        }
     }
 
     public void setCurrentUser(model.User user) {

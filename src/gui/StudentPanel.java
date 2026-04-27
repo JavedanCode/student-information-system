@@ -23,6 +23,13 @@ public class StudentPanel extends JPanel {
         setLayout(new BorderLayout());
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.addChangeListener(e -> {
+            if (app.getCurrentUser() == null) return;
+
+            refreshAvailable();
+            refreshEnrolled();
+            refreshTranscript();
+        });
 
         tabs.addTab("Available Courses", createAvailablePanel());
         tabs.addTab("My Courses", createEnrolledPanel());
@@ -59,7 +66,7 @@ public class StudentPanel extends JPanel {
             int row = table.getSelectedRow();
 
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Please select a course to drop");
+                JOptionPane.showMessageDialog(this, "Please select a course to enroll");
                 return;
             }
 
@@ -85,6 +92,7 @@ public class StudentPanel extends JPanel {
     }
 
     private void refreshAvailable() {
+        if (availableModel == null) return;
         availableModel.setRowCount(0);
 
         DataStore ds = DataStore.getInstance();
@@ -147,6 +155,7 @@ public class StudentPanel extends JPanel {
     }
 
     private void refreshEnrolled() {
+        if (enrolledModel == null) return;
         enrolledModel.setRowCount(0);
 
         DataStore ds = DataStore.getInstance();
@@ -194,6 +203,7 @@ public class StudentPanel extends JPanel {
 
     public void refreshTranscript() {
         if (app.getCurrentUser() == null) return;
+        if (transcriptModel == null || gpaLabel == null) return;
 
         transcriptModel.setRowCount(0);
 

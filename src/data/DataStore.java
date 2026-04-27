@@ -103,13 +103,16 @@ public class DataStore {
         Course course = findCourse(courseCode);
         if (course == null) return false;
 
-        // already enrolled
         if (isStudentEnrolled(studentUsername, courseCode)) return false;
 
-        // quota check
         if (countEnrollmentForCourse(courseCode) >= course.getQuota()) return false;
 
+        System.out.println("ENROLLING: " + studentUsername + " -> " + courseCode);
+
         enrollments.add(new Enrollment(studentUsername, courseCode));
+
+        System.out.println("TOTAL ENROLLMENTS: " + enrollments.size());
+
         return true;
     }
 
