@@ -5,6 +5,7 @@ import data.DataStore;
 import model.Role;
 import model.User;
 import model.Course;
+import util.ValidationUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,6 +16,7 @@ public class AdminPanel extends JPanel {
     private UniversityAutomationApp app;
     private JTable userTable;
     private DefaultTableModel tableModel;
+    private JComboBox<String> instructorBox;
 
     public AdminPanel(UniversityAutomationApp app) {
         this.app = app;
@@ -40,11 +42,13 @@ public class AdminPanel extends JPanel {
 
         JPanel panel = new JPanel(new BorderLayout());
 
+        JButton deleteBtn = new JButton("Delete Selected");
+
         // TABLE
         tableModel = new DefaultTableModel(new String[]{"Username", "Role", "Full Name"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column != 0; // username NOT editable
+                return column == 1; // ONLY role editable
             }
         };
         userTable = new JTable(tableModel);
@@ -87,12 +91,13 @@ public class AdminPanel extends JPanel {
         refreshUserTable();
 
         panel.add(new JScrollPane(userTable), BorderLayout.CENTER);
+        panel.add(deleteBtn, BorderLayout.NORTH);
 
         // FORM
         JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
 
         JTextField usernameField = new JTextField();
-        JTextField passwordField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
         JTextField fullNameField = new JTextField();
         JComboBox<Role> roleBox = new JComboBox<>(Role.values());
 
@@ -119,12 +124,19 @@ public class AdminPanel extends JPanel {
         addButton.addActionListener(e -> {
 
             String username = usernameField.getText().trim();
-            String password = passwordField.getText().trim();
+            String password = new String(passwordField.getPassword());
             String fullName = fullNameField.getText().trim();
             Role role = (Role) roleBox.getSelectedItem();
 
+
+
             if (username.isEmpty() || password.isEmpty() || fullName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "All fields required");
+                return;
+            }
+
+            if (!DataStore.getInstance().isValidName(fullName)) {
+                JOptionPane.showMessageDialog(this, "Name must contain only letters");
                 return;
             }
 
@@ -132,6 +144,13 @@ public class AdminPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Comma not allowed (file format restriction)");
                 return;
             }
+
+            if (username.length() > 15 || password.length() > 20 || fullName.length() > 30) {
+                JOptionPane.showMessageDialog(this, "Input too long");
+                return;
+            }
+
+
 
             DataStore ds = DataStore.getInstance();
 
@@ -143,12 +162,51 @@ public class AdminPanel extends JPanel {
             ds.addUser(new User(username, password, role, fullName, "N/A"));
             ds.saveAll();
 
+
+
             refreshUserTable();
 
             usernameField.setText("");
             passwordField.setText("");
             fullNameField.setText("");
+            if (instructorBox != null) {
+                refreshInstructorBox(instructorBox);
+            }
         });
+
+        deleteBtn.addActionListener(e -> {
+            int row = userTable.getSelectedRow();
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a user to delete");
+                return;
+            }
+
+            String username = (String) tableModel.getValueAt(row, 0);
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Delete user " + username + "?",
+                    "Confirm", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                DataStore.getInstance().deleteUser(username);
+                DataStore.getInstance().saveAll();
+
+                refreshUserTable();
+                if (instructorBox != null) {
+                    refreshInstructorBox(instructorBox);
+                }
+            }
+        });
+
+
+
+        // Validation
+        ValidationUtil.onlyAlphaNumeric(usernameField);
+
+        ValidationUtil.onlyLetters(fullNameField);
+
+        ValidationUtil.limitTextLength(passwordField, 20);
 
         return panel;
     }
@@ -172,8 +230,14 @@ public class AdminPanel extends JPanel {
 
         JPanel panel = new JPanel(new BorderLayout());
 
+
         DefaultTableModel courseModel = new DefaultTableModel(
-                new String[]{"Code", "Name", "Credit", "Quota"}, 0);
+                new String[]{"Code", "Name", "Credit", "Quota"},0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         JTable courseTable = new JTable(courseModel);
 
@@ -187,7 +251,7 @@ public class AdminPanel extends JPanel {
         JTextField nameField = new JTextField();
         JTextField creditField = new JTextField();
         JTextField quotaField = new JTextField();
-        JComboBox<String> instructorBox = new JComboBox<>();
+        instructorBox = new JComboBox<>();
 
         for (User u : DataStore.getInstance().getAllUsers()) {
             if (u.getRole() == Role.INSTRUCTOR) {
@@ -227,13 +291,34 @@ public class AdminPanel extends JPanel {
 
 
 
-                if (code.isEmpty() || name.isEmpty() || instructor.isEmpty()) {
+                if (code.isEmpty() || name.isEmpty() || instructor == null || instructor.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "All fields required");
                     return;
                 }
 
+                if (!DataStore.getInstance().isValidName(name)) {
+                    JOptionPane.showMessageDialog(this, "Course name must contain only letters");
+                    return;
+                }
+
+                if (code.length() > 10 || name.length() > 30) {
+                    JOptionPane.showMessageDialog(this, "Input too long");
+                    return;
+                }
+
+
                 if (credit <= 0 || quota <= 0) {
                     JOptionPane.showMessageDialog(this, "Credit and quota must be positive");
+                    return;
+                }
+
+                if (credit > 5) {
+                    JOptionPane.showMessageDialog(this, "Max credit is 5");
+                    return;
+                }
+
+                if (quota > 100) {
+                    JOptionPane.showMessageDialog(this, "Max quota is 100");
                     return;
                 }
 
@@ -254,18 +339,67 @@ public class AdminPanel extends JPanel {
 
                 refreshCourseTable(courseModel);
 
+                if (instructorBox != null) {
+                    refreshInstructorBox(instructorBox);
+                }
+
                 codeField.setText("");
                 nameField.setText("");
                 creditField.setText("");
                 quotaField.setText("");
-                instructorBox.setSelectedItem(0);
+                if (instructorBox.getItemCount() > 0) {
+                    instructorBox.setSelectedIndex(0);
+                }
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Credit and Quota must be numbers");
             }
         });
 
+        JButton deleteBtn = new JButton("Delete Selected");
+        panel.add(deleteBtn, BorderLayout.NORTH);
+
+        deleteBtn.addActionListener(e -> {
+            int row = courseTable.getSelectedRow();
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a course");
+                return;
+            }
+
+            String code = (String) courseModel.getValueAt(row, 0);
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Delete course " + code + "?",
+                    "Confirm", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                DataStore.getInstance().deleteCourse(code);
+                DataStore.getInstance().saveAll();
+
+                refreshCourseTable(courseModel);
+            }
+        });
+
+        //Validation
+        ValidationUtil.onlyAlphaNumeric(codeField);
+
+        ValidationUtil.onlyLetters(nameField);
+
+        ValidationUtil.onlyNumbers(creditField);
+        ValidationUtil.onlyNumbers(quotaField);
+
         return panel;
+    }
+
+    private void refreshInstructorBox(JComboBox<String> instructorBox) {
+        instructorBox.removeAllItems();
+
+        for (User u : DataStore.getInstance().getAllUsers()) {
+            if (u.getRole() == Role.INSTRUCTOR) {
+                instructorBox.addItem(u.getUsername());
+            }
+        }
     }
 
     private void refreshCourseTable(DefaultTableModel model) {
