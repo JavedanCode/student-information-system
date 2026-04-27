@@ -1,57 +1,148 @@
-# Student Information System
+# 🎓 Student Information System (Java Swing)
 
-A desktop-based Student Information System developed using Java Swing.
+A desktop-based Student Information System built using Java Swing.
+This application simulates a simplified university automation system with role-based access for **Admin**, **Instructor**, and **Student** users.
 
-## 📌 Overview
+---
 
-This project is a simplified university automation system that manages students, instructors, courses, enrollments, and grades.
+## 🚀 Features
 
-It demonstrates core software engineering concepts such as:
+### 🔐 Authentication
 
-* Object-Oriented Programming (OOP)
-* GUI development with Java Swing
-* File-based data persistence
+* Secure login system using username and password
 * Role-based access control
 
-## 👥 User Roles
+---
 
-The system supports three types of users:
+### 👨‍💼 Admin Panel
 
-### Admin
+* Add / delete users
+* Assign roles (Admin, Instructor, Student)
+* Create and delete courses
+* Automatic cleanup:
 
-* Manage users and instructors
-* Create student profiles
-* Add courses
-* View reports
+    * Deleting instructors removes their courses
+    * Deleting users removes enrollments & grades
 
-### Instructor
+---
+
+### 👨‍🏫 Instructor Panel
 
 * View assigned courses
-* Enter and update student grades
+* See enrolled students
+* Enter and update grades (midterm & final)
+* Automatic grade validation (0–100 range)
+* Pre-filled grade editing for better UX
 
-### Student
+---
 
-* View available courses
+### 🎓 Student Panel
+
+* View available courses with live quota tracking
 * Enroll in courses
-* View registered courses
-* View transcript and GPA
+* Drop courses
+* View enrolled courses
+* View transcript and GPA (auto-calculated)
 
-## 🏗️ Project Structure
+---
+
+## 💾 Data Persistence
+
+* File-based storage system
+* Data is preserved between application runs
+
+### Files used:
+
+* `users.txt`
+* `students.txt`
+* `courses.txt`
+* `enrollments.txt`
+* `grades.txt`
+
+---
+
+## 🧠 Technical Highlights
+
+* Object-Oriented Design (OOP principles)
+* Singleton pattern (`DataStore`)
+* Java Swing GUI (multi-panel architecture)
+* Event-driven programming
+* Input validation system
+* Clean separation of:
+
+    * UI (gui)
+    * Data logic (data)
+    * Models (model)
+    * Utilities (util)
+
+---
+
+## 🗂️ Project Structure
 
 ```
 src/
- ├── app/      # Application entry point and UI manager
- ├── data/     # Data storage and file handling
- ├── model/    # Core domain classes
- ├── gui/      # Swing UI components
- └── util/     # Utility classes
+│
+├── app/        → Application entry & panel manager  
+├── data/       → DataStore (file I/O, business logic)  
+├── model/      → Core domain classes  
+├── gui/        → Swing UI panels  
+└── util/       → Validation & helper utilities  
 ```
 
-## ⚙️ Technologies
+---
 
-* Java (JDK 17+ recommended)
-* Java Swing
+## ▶️ How to Run
 
-## 🚧 Status
+1. Clone the repository
+2. Open in IntelliJ IDEA (or any Java IDE)
+3. Ensure JDK 17+ (or newer) is configured
+4. Run:
 
-Project is currently under development.
+```
+UniversityAutomationApp.java
+```
+
+---
+
+## 👤 Default User (for testing)
+
+```
+Username: admin  
+Password: 1234  
+```
+
+---
+
+## 🧪 Key Behaviors
+
+* Course quota updates instantly when students enroll/drop
+* Deleting users automatically cleans related data
+* Grades update GPA in real-time
+* UI reflects changes immediately (no restart required)
+
+---
+
+## 📌 Future Improvements
+
+* UI redesign (modern styling, layout improvements)
+* Dark mode / theme support
+* Database integration (replace file system)
+* Advanced reporting features
+
+---
+
+## 🎯 Purpose
+
+This project was developed as a comprehensive exercise in:
+
+* Java Swing development
+* Object-oriented programming
+* System design
+* Data persistence
+* UI interaction and validation
+
+---
+
+## 📄 License
+
+This project is for educational purposes.
