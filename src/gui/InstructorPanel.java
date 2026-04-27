@@ -28,8 +28,7 @@ public class InstructorPanel extends JPanel {
     public InstructorPanel(UniversityAutomationApp app) {
         this.app = app;
 
-        ValidationUtil.onlyFloat(midtermField);
-        ValidationUtil.onlyFloat(finalField);
+
 
         setLayout(new BorderLayout());
 
@@ -86,14 +85,14 @@ public class InstructorPanel extends JPanel {
         courseTable = new JTable(courseModel);
 
         courseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        courseTable.setColumnSelectionAllowed(false);
 
         courseTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                fillExistingGrade();
                 refreshStudents();
-
                 midtermField.setText("");
                 finalField.setText("");
+                fillExistingGrade();
 
             }
         });
@@ -120,6 +119,7 @@ public class InstructorPanel extends JPanel {
 
         studentTable = new JTable(studentModel);
         studentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        studentTable.setColumnSelectionAllowed(false);
         studentTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 fillExistingGrade();
@@ -133,6 +133,9 @@ public class InstructorPanel extends JPanel {
 
         midtermField = new JTextField();
         finalField = new JTextField();
+
+        ValidationUtil.onlyFloat(midtermField);
+        ValidationUtil.onlyFloat(finalField);
 
         JButton saveGradeBtn = new JButton("Save Grade");
 
@@ -239,7 +242,6 @@ public class InstructorPanel extends JPanel {
                 midtermField.setText("");
                 finalField.setText("");
 
-                System.out.println("Selected course: " + courseCode);
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());
             }
