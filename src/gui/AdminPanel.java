@@ -41,8 +41,48 @@ public class AdminPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         // TABLE
-        tableModel = new DefaultTableModel(new String[]{"Username", "Role", "Full Name"}, 0);
+        tableModel = new DefaultTableModel(new String[]{"Username", "Role", "Full Name"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column != 0; // username NOT editable
+            }
+        };
         userTable = new JTable(tableModel);
+
+        userTable.getModel().addTableModelListener(e -> {
+            int row = e.getFirstRow();
+            int column = e.getColumn();
+
+            if (row < 0 || column < 0) return;
+
+            String username = (String) tableModel.getValueAt(row, 0);
+            String roleStr = tableModel.getValueAt(row, 1).toString();
+            String fullName = tableModel.getValueAt(row, 2).toString();
+
+            DataStore ds = DataStore.getInstance();
+            User user = ds.findUser(username);
+
+            if (user != null) {
+                try {
+                    Role newRole = Role.valueOf(roleStr);
+
+                    // recreate user (since fields are private and no setters)
+                    ds.getAllUsers().remove(user);
+                    ds.addUser(new User(
+                            user.getUsername(),
+                            user.getPassword(),
+                            newRole,
+                            fullName,
+                            user.getReferenceId()
+                    ));
+
+                    ds.saveAll();
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid role value");
+                }
+            }
+        });
 
         refreshUserTable();
 
