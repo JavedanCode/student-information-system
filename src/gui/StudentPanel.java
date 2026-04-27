@@ -59,6 +59,7 @@ public class StudentPanel extends JPanel {
 
         JTable table = new JTable(availableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setColumnSelectionAllowed(false);
 
 
         JButton enrollBtn = new JButton("Enroll Selected");
@@ -108,7 +109,7 @@ public class StudentPanel extends JPanel {
             availableModel.addRow(new Object[]{
                     c.getCourseCode(),
                     c.getCourseName(),
-                    count + "/" + c.getQuota()
+                    (count) + " enrolled / " + c.getQuota()
             });
         }
     }
@@ -130,6 +131,7 @@ public class StudentPanel extends JPanel {
 
         JTable table = new JTable(enrolledModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setColumnSelectionAllowed(false);
 
 
         JButton dropBtn = new JButton("Drop Selected");
@@ -147,14 +149,13 @@ public class StudentPanel extends JPanel {
 
             System.out.println("Dropping: " + courseCode);
 
-            JOptionPane.showMessageDialog(this, "Course dropped successfully");
-
             DataStore.getInstance().removeEnrollment(username, courseCode);
             DataStore.getInstance().saveAll();
 
             refreshAll();
             refreshTranscript();
-            refreshAvailable();
+
+            JOptionPane.showMessageDialog(this, "Course dropped successfully");
         });
 
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
