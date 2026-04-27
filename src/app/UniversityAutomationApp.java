@@ -10,6 +10,7 @@ public class UniversityAutomationApp extends JFrame {
 
     private model.User currentUser;
     private gui.StudentPanel studentPanel;
+    private gui.InstructorPanel instructorPanel;
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -25,9 +26,10 @@ public class UniversityAutomationApp extends JFrame {
 
         // Add panels
         studentPanel = new gui.StudentPanel(this);
+        instructorPanel = new gui.InstructorPanel(this);
         mainPanel.add(new LoginPanel(this), "LOGIN");
         mainPanel.add(new gui.AdminPanel(this), "ADMIN");
-        mainPanel.add(new gui.InstructorPanel(this), "INSTRUCTOR");
+        mainPanel.add(instructorPanel, "INSTRUCTOR");
         mainPanel.add(studentPanel, "STUDENT");
 
         add(mainPanel);
@@ -41,6 +43,9 @@ public class UniversityAutomationApp extends JFrame {
         if (name.equals("STUDENT") && studentPanel != null) {
             studentPanel.refreshAll();
             studentPanel.refreshTranscript();
+        }
+        if (name.equals("INSTRUCTOR") && instructorPanel != null) {
+            instructorPanel.refreshCourses();
         }
     }
 

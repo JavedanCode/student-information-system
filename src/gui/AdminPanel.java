@@ -182,7 +182,13 @@ public class AdminPanel extends JPanel {
         JTextField nameField = new JTextField();
         JTextField creditField = new JTextField();
         JTextField quotaField = new JTextField();
-        JTextField instructorField = new JTextField();
+        JComboBox<String> instructorBox = new JComboBox<>();
+
+        for (User u : DataStore.getInstance().getAllUsers()) {
+            if (u.getRole() == Role.INSTRUCTOR) {
+                instructorBox.addItem(u.getUsername());
+            }
+        }
 
         JButton addButton = new JButton("Add Course");
 
@@ -199,7 +205,7 @@ public class AdminPanel extends JPanel {
         form.add(quotaField);
 
         form.add(new JLabel("Instructor Username:"));
-        form.add(instructorField);
+        form.add(instructorBox);
 
         form.add(new JLabel(""));
         form.add(addButton);
@@ -212,7 +218,7 @@ public class AdminPanel extends JPanel {
                 String name = nameField.getText().trim();
                 int credit = Integer.parseInt(creditField.getText().trim());
                 int quota = Integer.parseInt(quotaField.getText().trim());
-                String instructor = instructorField.getText().trim();
+                String instructor = (String) instructorBox.getSelectedItem();
 
                 if (code.isEmpty() || name.isEmpty() || instructor.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "All fields required");
@@ -235,7 +241,7 @@ public class AdminPanel extends JPanel {
                 nameField.setText("");
                 creditField.setText("");
                 quotaField.setText("");
-                instructorField.setText("");
+                instructorBox.setSelectedItem(0);
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Credit and Quota must be numbers");

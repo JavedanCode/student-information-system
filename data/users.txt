@@ -1,4 +1,5 @@
 admin,1234,ADMIN,System Admin,A1
 student1,1234,STUDENT,John Doe,S1
 student2,1234,STUDENT,Subject1,N/A
-inst1,1234,ADMIN,Dr Smith,I1
+inst1,1234,INSTRUCTOR,Nazife Çevik,I1
+tugberk,1234,INSTRUCTOR,tugberk,N/A
