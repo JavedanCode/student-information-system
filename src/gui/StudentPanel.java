@@ -147,8 +147,6 @@ public class StudentPanel extends JPanel {
             String courseCode = (String) enrolledModel.getValueAt(row, 0);
             String username = app.getCurrentUser().getUsername();
 
-            System.out.println("Dropping: " + courseCode);
-
             DataStore.getInstance().removeEnrollment(username, courseCode);
             DataStore.getInstance().saveAll();
 
