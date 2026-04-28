@@ -42,6 +42,7 @@ public class AdminPanel extends JPanel {
     private JPanel createUserPanel() {
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JButton deleteBtn = new JButton("Delete Selected");
 
@@ -275,6 +276,7 @@ public class AdminPanel extends JPanel {
     private JPanel createCoursePanel() {
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
 
         courseModel = new DefaultTableModel(

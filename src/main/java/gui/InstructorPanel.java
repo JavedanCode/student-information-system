@@ -31,6 +31,7 @@ public class InstructorPanel extends JPanel {
 
 
         setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 createCoursePanel(),
@@ -72,6 +73,7 @@ public class InstructorPanel extends JPanel {
     private JPanel createCoursePanel() {
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         courseModel = new DefaultTableModel(
                 new String[]{"Course Code", "Course Name"}, 0) {

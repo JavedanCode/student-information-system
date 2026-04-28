@@ -48,6 +48,7 @@ public class StudentPanel extends JPanel {
     private JPanel createAvailablePanel() {
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         availableModel = new DefaultTableModel(
                 new String[]{"Code", "Name", "Quota"}, 0) {
@@ -120,6 +121,7 @@ public class StudentPanel extends JPanel {
     private JPanel createEnrolledPanel() {
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         enrolledModel = new DefaultTableModel(
                 new String[]{"Code", "Name"}, 0) {
@@ -189,6 +191,7 @@ public class StudentPanel extends JPanel {
     private JPanel createTranscriptPanel() {
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         transcriptModel = new DefaultTableModel(
                 new String[]{"Course", "Average", "Grade"}, 0) {
