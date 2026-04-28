@@ -58,34 +58,57 @@ public class AdminPanel extends JPanel {
             int row = e.getFirstRow();
             int column = e.getColumn();
 
-            if (row < 0 || column < 0) return;
+            if (row < 0 || column != 1) return; // only care about role column
 
             String username = (String) tableModel.getValueAt(row, 0);
-            String roleStr = tableModel.getValueAt(row, 1).toString();
-            String fullName = tableModel.getValueAt(row, 2).toString();
+            String newRoleStr = tableModel.getValueAt(row, 1).toString();
 
             DataStore ds = DataStore.getInstance();
             User user = ds.findUser(username);
 
-            if (user != null) {
-                try {
-                    Role newRole = Role.valueOf(roleStr);
+            if (user == null) return;
 
-                    // recreate user (since fields are private and no setters)
-                    ds.getAllUsers().remove(user);
-                    ds.addUser(new User(
-                            user.getUsername(),
-                            user.getPassword(),
-                            newRole,
-                            fullName,
-                            user.getReferenceId()
-                    ));
+            Role oldRole = user.getRole();
 
-                    ds.saveAll();
+            try {
+                Role newRole = Role.valueOf(newRoleStr);
 
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid role value");
+                // no change → do nothing
+                if (newRole == oldRole) return;
+
+                // 🔥 prevent removing last admin via edit too
+                if (oldRole == Role.ADMIN && newRole != Role.ADMIN) {
+                    long adminCount = ds.getAllUsers().stream()
+                            .filter(u -> u.getRole() == Role.ADMIN)
+                            .count();
+
+                    if (adminCount <= 1) {
+                        JOptionPane.showMessageDialog(this,
+                                "At least one admin must remain.");
+
+                        // revert UI
+                        tableModel.setValueAt(oldRole, row, 1);
+                        return;
+                    }
                 }
+
+                // apply change
+                ds.getAllUsers().remove(user);
+                ds.addUser(new User(
+                        user.getUsername(),
+                        user.getPassword(),
+                        newRole,
+                        user.getFullName(),
+                        user.getReferenceId()
+                ));
+
+                ds.saveAll();
+
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid role value");
+
+                // 🔥 revert UI back to old value
+                tableModel.setValueAt(oldRole, row, 1);
             }
         });
 
