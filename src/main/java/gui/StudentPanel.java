@@ -17,6 +17,102 @@ public class StudentPanel extends JPanel {
     private DefaultTableModel enrolledModel;
     private DefaultTableModel transcriptModel;
 
+    // -----------------------------
+    // HELPERS
+    // -----------------------------
+    public void refreshTranscript() {
+        if (transcriptModel == null || gpaLabel == null || app.getCurrentUser() == null) return;
+
+        transcriptModel.setRowCount(0);
+
+        DataStore ds = DataStore.getInstance();
+        String username = app.getCurrentUser().getUsername();
+
+        for (GradeRecord g : ds.getGradesByStudent(username)) {
+
+            Course c = ds.findCourse(g.getCourseCode());
+
+            transcriptModel.addRow(new Object[]{
+                    c != null ? c.getCourseName() : g.getCourseCode(),
+                    g.calculateAverage(),
+                    g.getLetterGrade()
+            });
+        }
+
+        double gpa = ds.calculateGPA(username);
+        gpaLabel.setText("GPA: " + String.format("%.2f", gpa));
+    }
+
+    private void refreshAvailable() {
+        if (availableModel == null || app.getCurrentUser() == null) return;
+        availableModel.setRowCount(0);
+
+        DataStore ds = DataStore.getInstance();
+
+        for (Course c : ds.getAllCourses()) {
+            int count = ds.countEnrollmentForCourse(c.getCourseCode());
+
+            availableModel.addRow(new Object[]{
+                    c.getCourseCode(),
+                    c.getCourseName(),
+                    (count) + " enrolled / " + c.getQuota()
+            });
+        }
+    }
+
+    private void refreshEnrolled() {
+        if (enrolledModel == null || app.getCurrentUser() == null) return;
+        enrolledModel.setRowCount(0);
+
+        DataStore ds = DataStore.getInstance();
+        String username = app.getCurrentUser().getUsername();
+
+        List<Enrollment> list = ds.getEnrollmentsByStudent(username);
+
+        for (Enrollment e : list) {
+            Course c = ds.findCourse(e.getCourseCode());
+
+            if (c != null) {
+                enrolledModel.addRow(new Object[]{
+                        c.getCourseCode(),
+                        c.getCourseName()
+                });
+            }
+        }
+    }
+
+    public void refreshAll() {
+        if (app.getCurrentUser() == null) return;
+
+        refreshAvailable();
+        refreshEnrolled();
+    }
+
+    private JPanel createTopBar(JButton... buttons) {
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        JPanel rightActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+
+        for (JButton b : buttons) {
+            b.putClientProperty("JButton.buttonType", "roundRect");
+            rightActions.add(b);
+        }
+
+        JButton logout = new JButton("Logout");
+        logout.putClientProperty("JButton.buttonType", "roundRect");
+        logout.addActionListener(e -> app.showPanel("LOGIN"));
+
+        rightActions.add(logout);
+
+        topBar.add(rightActions, BorderLayout.EAST);
+
+        return topBar;
+    }
+
+    // -----------------------------
+    // CONSTRUCTOR
+    // -----------------------------
     public StudentPanel(UniversityAutomationApp app) {
         this.app = app;
 
@@ -35,11 +131,7 @@ public class StudentPanel extends JPanel {
         tabs.addTab("My Courses", createEnrolledPanel());
         tabs.addTab("Transcript", createTranscriptPanel());
 
-        JButton logout = new JButton("Logout");
-        logout.addActionListener(e -> app.showPanel("LOGIN"));
-
         add(tabs, BorderLayout.CENTER);
-        add(logout, BorderLayout.SOUTH);
     }
 
     // -----------------------------
@@ -61,7 +153,9 @@ public class StudentPanel extends JPanel {
         JTable table = new JTable(availableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setColumnSelectionAllowed(false);
-
+        table.setRowHeight(28);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
 
         JButton enrollBtn = new JButton("Enroll Selected");
 
@@ -92,27 +186,10 @@ public class StudentPanel extends JPanel {
             }
         });
 
+        panel.add(createTopBar(enrollBtn), BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        panel.add(enrollBtn, BorderLayout.SOUTH);
 
         return panel;
-    }
-
-    private void refreshAvailable() {
-        if (availableModel == null || app.getCurrentUser() == null) return;
-        availableModel.setRowCount(0);
-
-        DataStore ds = DataStore.getInstance();
-
-        for (Course c : ds.getAllCourses()) {
-            int count = ds.countEnrollmentForCourse(c.getCourseCode());
-
-            availableModel.addRow(new Object[]{
-                    c.getCourseCode(),
-                    c.getCourseName(),
-                    (count) + " enrolled / " + c.getQuota()
-            });
-        }
     }
 
     // -----------------------------
@@ -134,6 +211,9 @@ public class StudentPanel extends JPanel {
         JTable table = new JTable(enrolledModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setColumnSelectionAllowed(false);
+        table.setRowHeight(28);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
 
 
         JButton dropBtn = new JButton("Drop Selected");
@@ -158,31 +238,11 @@ public class StudentPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Course dropped successfully");
         });
 
+
+        panel.add(createTopBar(dropBtn), BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        panel.add(dropBtn, BorderLayout.SOUTH);
 
         return panel;
-    }
-
-    private void refreshEnrolled() {
-        if (enrolledModel == null || app.getCurrentUser() == null) return;
-        enrolledModel.setRowCount(0);
-
-        DataStore ds = DataStore.getInstance();
-        String username = app.getCurrentUser().getUsername();
-
-        List<Enrollment> list = ds.getEnrollmentsByStudent(username);
-
-        for (Enrollment e : list) {
-            Course c = ds.findCourse(e.getCourseCode());
-
-            if (c != null) {
-                enrolledModel.addRow(new Object[]{
-                        c.getCourseCode(),
-                        c.getCourseName()
-                });
-            }
-        }
     }
 
     // -----------------------------
@@ -202,43 +262,19 @@ public class StudentPanel extends JPanel {
         };
 
         JTable table = new JTable(transcriptModel);
+        table.setRowHeight(28);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
 
         gpaLabel = new JLabel("GPA: 0.0");
 
 
+        panel.add(createTopBar(), BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
         panel.add(gpaLabel, BorderLayout.SOUTH);
 
         return panel;
     }
 
-    public void refreshTranscript() {
-        if (transcriptModel == null || gpaLabel == null || app.getCurrentUser() == null) return;
 
-        transcriptModel.setRowCount(0);
-
-        DataStore ds = DataStore.getInstance();
-        String username = app.getCurrentUser().getUsername();
-
-        for (GradeRecord g : ds.getGradesByStudent(username)) {
-
-            Course c = ds.findCourse(g.getCourseCode());
-
-            transcriptModel.addRow(new Object[]{
-                    c != null ? c.getCourseName() : g.getCourseCode(),
-                    g.calculateAverage(),
-                    g.getLetterGrade()
-            });
-        }
-
-        double gpa = ds.calculateGPA(username);
-        gpaLabel.setText("GPA: " + String.format("%.2f", gpa));
-    }
-
-    public void refreshAll() {
-        if (app.getCurrentUser() == null) return;
-
-        refreshAvailable();
-        refreshEnrolled();
-    }
 }
