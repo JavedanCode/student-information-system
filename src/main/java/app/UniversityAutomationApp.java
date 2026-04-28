@@ -19,7 +19,8 @@ public class UniversityAutomationApp extends JFrame {
 
     public UniversityAutomationApp() {
         setTitle("Student Information System");
-        setSize(800, 600);
+        setSize(1080, 720);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 

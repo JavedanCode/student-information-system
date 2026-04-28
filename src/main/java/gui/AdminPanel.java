@@ -18,6 +18,8 @@ public class AdminPanel extends JPanel {
     private DefaultTableModel courseModel;
     private DefaultTableModel tableModel;
     private JComboBox<String> instructorBox;
+    private JPanel statsPanel;
+    private JPanel bottom;
 
     public AdminPanel(UniversityAutomationApp app) {
         this.app = app;
@@ -33,16 +35,15 @@ public class AdminPanel extends JPanel {
         logoutButton.addActionListener(e -> app.showPanel("LOGIN"));
 
         add(tabs, BorderLayout.CENTER);
-        add(logoutButton, BorderLayout.SOUTH);
     }
 
     // -----------------------------
     // USER PANEL
     // -----------------------------
     private JPanel createUserPanel() {
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JPanel panel = new JPanel(new BorderLayout(15, 15));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.putClientProperty("JComponent.arc", 20);
 
         JButton deleteBtn = new JButton("Delete Selected");
 
@@ -54,6 +55,10 @@ public class AdminPanel extends JPanel {
             }
         };
         userTable = new JTable(tableModel);
+
+        userTable.setRowHeight(28);
+        userTable.setShowGrid(false);
+        userTable.setIntercellSpacing(new Dimension(0, 0));
 
         userTable.getModel().addTableModelListener(e -> {
             int row = e.getFirstRow();
@@ -113,37 +118,109 @@ public class AdminPanel extends JPanel {
             }
         });
 
+        JPanel center = new JPanel(new BorderLayout());
+        center.add(new JScrollPane(userTable), BorderLayout.CENTER);
+
+        panel.add(center, BorderLayout.CENTER);
+
         refreshUserTable();
 
-        panel.add(new JScrollPane(userTable), BorderLayout.CENTER);
-        panel.add(deleteBtn, BorderLayout.NORTH);
+        JPanel topBar = new JPanel(new BorderLayout());
+
+        JPanel rightActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightActions.add(deleteBtn);
+
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.putClientProperty("JButton.buttonType", "roundRect");
+
+        logoutBtn.addActionListener(e -> app.showPanel("LOGIN"));
+
+        rightActions.add(logoutBtn);
+
+        topBar.add(rightActions, BorderLayout.EAST);
+
+        panel.add(topBar, BorderLayout.NORTH);
 
         // FORM
-        JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
-
         JTextField usernameField = new JTextField();
         JPasswordField passwordField = new JPasswordField();
         JTextField fullNameField = new JTextField();
         JComboBox<Role> roleBox = new JComboBox<>(Role.values());
 
+        usernameField.setPreferredSize(new Dimension(220,30));
+        passwordField.setPreferredSize(new Dimension(220,30));
+        fullNameField.setPreferredSize(new Dimension(220,30));
+        roleBox.setPreferredSize(new Dimension(220,30));
+
         JButton addButton = new JButton("Add User");
 
-        form.add(new JLabel("Username:"));
-        form.add(usernameField);
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Add User"),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-        form.add(new JLabel("Password:"));
-        form.add(passwordField);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.anchor = GridBagConstraints.LINE_END;
 
-        form.add(new JLabel("Full Name:"));
-        form.add(fullNameField);
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.weightx = 0;
+        form.add(new JLabel("Username:"), gbc);
 
-        form.add(new JLabel("Role:"));
-        form.add(roleBox);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        form.add(usernameField, gbc);
 
-        form.add(new JLabel(""));
-        form.add(addButton);
+        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.weightx = 0;
+        form.add(new JLabel("Password:"), gbc);
 
-        panel.add(form, BorderLayout.SOUTH);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        form.add(passwordField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.weightx = 0;
+        form.add(new JLabel("Full Name:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        form.add(fullNameField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.weightx = 0;
+        form.add(new JLabel("Role:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        form.add(roleBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+
+        addButton.setPreferredSize(new Dimension(140, 36));
+
+
+        form.add(addButton, gbc);
+
+
+        bottom = new JPanel(new GridLayout(1, 2, 15, 0));
+
+        JPanel formWrapper = new JPanel(new GridBagLayout());
+        formWrapper.add(form);
+
+        bottom.add(formWrapper);
+        statsPanel = createStatsPanel();
+        statsPanel.setPreferredSize(new Dimension(320, 250));
+        JPanel statsWrapper = new JPanel(new GridBagLayout());
+        statsWrapper.add(statsPanel);
+
+        bottom.add(statsWrapper);
+
+        panel.add(bottom, BorderLayout.SOUTH);
 
         // ACTION
         addButton.addActionListener(e -> {
@@ -190,6 +267,7 @@ public class AdminPanel extends JPanel {
 
 
             refreshUserTable();
+            refreshStats();
 
             usernameField.setText("");
             passwordField.setText("");
@@ -235,6 +313,7 @@ public class AdminPanel extends JPanel {
                 DataStore.getInstance().saveAll();
 
                 refreshUserTable();
+                refreshStats();
 
                 if (instructorBox != null) {
                     refreshInstructorBox(instructorBox);
@@ -258,6 +337,15 @@ public class AdminPanel extends JPanel {
         return panel;
     }
 
+    private void refreshStats() {
+        bottom.remove(statsPanel);
+        statsPanel = createStatsPanel();
+        bottom.add(statsPanel);
+
+        bottom.revalidate();
+        bottom.repaint();
+    }
+
     private void refreshUserTable() {
         tableModel.setRowCount(0);
 
@@ -275,8 +363,9 @@ public class AdminPanel extends JPanel {
     // -----------------------------
     private JPanel createCoursePanel() {
 
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JPanel panel = new JPanel(new BorderLayout(15, 15));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.putClientProperty("JComponent.arc", 20);
 
 
         courseModel = new DefaultTableModel(
@@ -386,6 +475,7 @@ public class AdminPanel extends JPanel {
                 ds.saveAll();
 
                 refreshCourseTable(courseModel);
+                refreshStats();
 
                 if (instructorBox != null) {
                     refreshInstructorBox(instructorBox);
@@ -404,8 +494,18 @@ public class AdminPanel extends JPanel {
             }
         });
 
+
+        addButton.putClientProperty("JButton.buttonType", "roundRect");
+        addButton.putClientProperty("JButton.arc", 15);
+
         JButton deleteBtn = new JButton("Delete Selected");
-        panel.add(deleteBtn, BorderLayout.NORTH);
+        deleteBtn.putClientProperty("JButton.buttonType", "roundRect");
+        deleteBtn.putClientProperty("JButton.arc", 15);
+
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topBar.add(deleteBtn);
+
+        panel.add(topBar, BorderLayout.NORTH);
 
         deleteBtn.addActionListener(e -> {
             int row = courseTable.getSelectedRow();
@@ -426,6 +526,7 @@ public class AdminPanel extends JPanel {
                 DataStore.getInstance().saveAll();
 
                 refreshCourseTable(courseModel);
+                refreshStats();
             }
         });
 
@@ -438,6 +539,43 @@ public class AdminPanel extends JPanel {
         ValidationUtil.onlyNumbers(quotaField);
 
         return panel;
+    }
+
+    private JPanel createStatCard(String label, long value) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        card.putClientProperty("JComponent.arc", 20);
+
+        JLabel valueLabel = new JLabel(String.valueOf(value));
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+
+        JLabel textLabel = new JLabel(label);
+        textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+        card.add(valueLabel, BorderLayout.CENTER);
+        card.add(textLabel, BorderLayout.SOUTH);
+
+        return card;
+    }
+
+    private JPanel createStatsPanel() {
+        JPanel stats = new JPanel(new GridLayout(2, 2, 15, 15));
+        stats.setBorder(BorderFactory.createTitledBorder("System Overview"));
+        stats.putClientProperty("JComponent.arc", 20);
+
+        DataStore ds = DataStore.getInstance();
+
+        long admins = ds.getAllUsers().stream().filter(u -> u.getRole() == Role.ADMIN).count();
+        long instructors = ds.getAllUsers().stream().filter(u -> u.getRole() == Role.INSTRUCTOR).count();
+        long students = ds.getAllUsers().stream().filter(u -> u.getRole() == Role.STUDENT).count();
+        int courses = ds.getAllCourses().size();
+
+        stats.add(createStatCard("Admins", admins));
+        stats.add(createStatCard("Instructors", instructors));
+        stats.add(createStatCard("Students", students));
+        stats.add(createStatCard("Courses", courses));
+
+        return stats;
     }
 
     private void refreshInstructorBox(JComboBox<String> instructorBox) {
