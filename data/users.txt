@@ -1,5 +1,3 @@
-stud2,1234,STUDENT,studm,N/A
 student,1234,STUDENT,student,N/A
 admin,1234,ADMIN,admin,N/A
-admin2,1234,ADMIN,admin,N/A
 inst,1234,INSTRUCTOR,inst,N/A

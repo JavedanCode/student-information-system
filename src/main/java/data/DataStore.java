@@ -33,13 +33,6 @@ public class DataStore {
     }
 
     // -----------------------------
-    // INITIALIZE (for testing)
-    // -----------------------------
-    public void initialize() {
-        users.add(new User("admin", "1234", Role.ADMIN, "System Admin", "A1"));
-    }
-
-    // -----------------------------
     // AUTH
     // -----------------------------
     public User authenticate(String username, String password) {
@@ -197,24 +190,14 @@ public class DataStore {
         }
     }
 
-    // -----------------------------
-    // ADD METHODS (ADMIN USE)
-    // -----------------------------
     public void addUser(User user) {
         users.add(user);
-    }
-
-    public void addStudentProfile(StudentProfile student) {
-        students.add(student);
     }
 
     public void addCourse(Course course) {
         courses.add(course);
     }
 
-    // -----------------------------
-    // GET ALL (for tables later)
-    // -----------------------------
     public List<User> getAllUsers() { return users; }
     public List<StudentProfile> getAllStudents() { return students; }
     public List<Course> getAllCourses() { return courses; }
@@ -327,19 +310,14 @@ public class DataStore {
 
     public void deleteUser(String username) {
 
-        // remove user
         users.removeIf(u -> u.getUsername().equals(username));
 
-        // remove student profile
         students.removeIf(s -> s.getUsername().equals(username));
 
-        // remove enrollments
         enrollments.removeIf(e -> e.getStudentUsername().equals(username));
 
-        // remove grades
         grades.removeIf(g -> g.getStudentUsername().equals(username));
 
-        // remove courses taught by instructor
         List<String> coursesToRemove = courses.stream()
                 .filter(c -> username.equals(c.getInstructorUsername()))
                 .map(Course::getCourseCode)
@@ -347,17 +325,14 @@ public class DataStore {
 
         courses.removeIf(c -> username.equals(c.getInstructorUsername()));
 
-        // remove enrollments tied to deleted courses
         enrollments.removeIf(e -> coursesToRemove.contains(e.getCourseCode()));
 
-        // remove grades tied to deleted courses
         grades.removeIf(g -> coursesToRemove.contains(g.getCourseCode()));
     }
 
     public void deleteCourse(String courseCode) {
 
         courses.removeIf(c -> c.getCourseCode().equals(courseCode));
-        System.out.println("Deleted course: " + courseCode);
 
         enrollments.removeIf(e -> e.getCourseCode().equals(courseCode));
 
