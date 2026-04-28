@@ -6,6 +6,8 @@ import gui.LoginPanel;
 import javax.swing.*;
 import java.awt.*;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+
 public class UniversityAutomationApp extends JFrame {
 
     private model.User currentUser;
@@ -65,6 +67,12 @@ public class UniversityAutomationApp extends JFrame {
 
         // Load data
         DataStore.getInstance().loadAll();
+
+        try {
+            FlatDarkLaf.setup(); // enables modern UI
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         SwingUtilities.invokeLater(() -> {
             new UniversityAutomationApp().setVisible(true);
