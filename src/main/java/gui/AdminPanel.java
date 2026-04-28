@@ -341,6 +341,10 @@ public class AdminPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "All fields required");
                 return;
             }
+            if (password.length() < 8) {
+                JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long");
+                return;
+            }
 
             if (!DataStore.getInstance().isValidName(fullName)) {
                 JOptionPane.showMessageDialog(this, "Name must contain only letters");

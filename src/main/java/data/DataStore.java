@@ -97,17 +97,12 @@ public class DataStore {
         if (course == null) return false;
 
         if (isStudentEnrolled(studentUsername, courseCode)) {
-            System.out.println("Already enrolled!");
             return false;
         }
 
         if (countEnrollmentForCourse(courseCode) >= course.getQuota()) return false;
 
-        System.out.println("ENROLLING: " + studentUsername + " -> " + courseCode);
-
         enrollments.add(new Enrollment(studentUsername, courseCode));
-
-        System.out.println("TOTAL ENROLLMENTS: " + enrollments.size());
 
         return true;
     }
@@ -343,7 +338,4 @@ public class DataStore {
         return name != null && name.matches("[a-zA-Z ]+");
     }
 
-    public boolean isValidUsername(String username) {
-        return username != null && username.matches("[a-zA-Z0-9]+");
-    }
 }
