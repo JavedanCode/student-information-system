@@ -71,6 +71,9 @@ public class UniversityAutomationApp extends JFrame {
         try {
             FlatDarkLaf.setup(); // enables modern UI
             UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 15));
+            UIManager.put("Component.arc", 15);
+            UIManager.put("TextComponent.arc", 15);
+            UIManager.put("Button.arc", 15);
         } catch (Exception e) {
             e.printStackTrace();
         }
