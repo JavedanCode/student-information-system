@@ -1,1 +1,14 @@
-1234,course,3,3,inst
+1,Computer Graphics,3,90,tugberk
+2,Web Programming,5,76,nazife
+3,Visual Based Programming,4,78,nazife
+4,System Analysis and Design,5,100,tugberk
+5,Image Processing and Lab,2,90,semra
+6,Communication Theory II,2,90,semra
+7,Data Communication,3,100,aziz
+8,Database Management,5,90,aziz
+9,Operating Systems,3,90,anil
+10,Software Engineering,3,100,anil
+11,Computer Organization,3,98,anil
+12,Quantum Physics,5,100,emrah
+13,Data Structures,5,100,tugberk
+14,Object Oriented Programming,5,90,taner

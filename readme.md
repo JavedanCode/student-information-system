@@ -91,6 +91,21 @@ src/
 
 ---
 
+## Validation Rules
+
+The system includes basic input validation to ensure data integrity:
+
+- Passwords must be at least 8 characters long
+- Username and password cannot contain commas (file format constraint)
+- Name fields accept only letters
+- Input length limits are enforced for all fields
+- Course constraints:
+  - Credit must be between 1–5
+  - Quota must be between 1–100
+- System prevents removal of the last admin user
+
+---
+
 ## ▶️ How to Run
 
 1. Clone the repository
