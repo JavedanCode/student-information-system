@@ -1,2 +1,4 @@
-student1,1234,STUDENT,John Doe,S1
-admin,1234,ADMIN,System Admin,A1
+inst,1234,INSTRUCTOR,inst,N/A
+stud2,1234,STUDENT,studm,N/A
+student,1234,STUDENT,student,N/A
+admin,1234,ADMIN,admin,N/A

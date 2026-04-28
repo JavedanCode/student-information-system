@@ -184,6 +184,23 @@ public class AdminPanel extends JPanel {
             }
 
             String username = (String) tableModel.getValueAt(row, 0);
+            Role role = (Role) tableModel.getValueAt(row, 1);
+
+            DataStore ds = DataStore.getInstance();
+
+            if (role == Role.ADMIN) {
+
+                long adminCount = ds.getAllUsers().stream()
+                        .filter(u -> u.getRole() == Role.ADMIN)
+                        .count();
+
+                if (adminCount <= 1) {
+                    JOptionPane.showMessageDialog(this,
+                            "You must have at least one admin in the system.");
+                    return;
+                }
+            }
+
 
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Delete user " + username + "?",
