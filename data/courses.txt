@@ -12,3 +12,4 @@
 12,Quantum Physics,5,100,emrah
 13,Data Structures,5,100,tugberk
 14,Object Oriented Programming,5,90,taner
+15,Calculus II,5,100,sevgi

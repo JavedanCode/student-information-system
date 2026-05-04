@@ -9,11 +9,13 @@ import java.util.stream.Collectors;
 
 public class DataStore {
 
-    private final String USERS_FILE = "data/users.txt";
-    private final String STUDENTS_FILE = "data/students.txt";
-    private final String COURSES_FILE = "data/courses.txt";
-    private final String ENROLLMENTS_FILE = "data/enrollments.txt";
-    private final String GRADES_FILE = "data/grades.txt";
+    private final String BASE_PATH = new java.io.File(".").getAbsolutePath();
+
+    private final String USERS_FILE = BASE_PATH + "/data/users.txt";
+    private final String STUDENTS_FILE = BASE_PATH + "/data/students.txt";
+    private final String COURSES_FILE = BASE_PATH + "/data/courses.txt";
+    private final String ENROLLMENTS_FILE = BASE_PATH + "/data/enrollments.txt";
+    private final String GRADES_FILE = BASE_PATH + "/data/grades.txt";
 
     private static DataStore instance;
 
@@ -207,8 +209,10 @@ public class DataStore {
 
     private void loadUsers() {
         users.clear();
+
         for (String line : FileUtil.readFile(USERS_FILE)) {
             try {
+
                 users.add(User.fromFileString(line));
             } catch (Exception e) {
                 System.out.println("Skipping invalid line: " + line);

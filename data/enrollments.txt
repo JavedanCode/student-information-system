@@ -12,3 +12,8 @@ fares,7
 fares,5
 fares,10
 fares,12
+abdu,15
+abdu,8
+abdu,9
+abdu,11
+abdu,14
